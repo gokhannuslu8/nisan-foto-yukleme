@@ -1,0 +1,14 @@
+# Gizli dosyalar
+server/credentials.json
+server/token.json
+
+# Geçici yüklemeler
+server/uploads/
+
+# Node modülleri
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment
+.env

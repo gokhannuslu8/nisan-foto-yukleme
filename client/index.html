@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nişan Fotoğraf & Video Yükleme</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📸 Nişan Fotoğraf & Video Yükleme</h1>
+            <p>Çektiğiniz fotoğraf ve videoları buradan yükleyebilirsiniz</p>
+        </div>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <p class="upload-text">Dosyalarınızı buraya sürükleyin veya tıklayarak seçin</p>
+            <p class="upload-hint">Resim (JPG, PNG, GIF) ve Video (MP4, MOV, AVI) dosyaları</p>
+            <input type="file" id="fileInput" multiple accept="image/*,video/*" hidden>
+        </div>
+
+        <div class="file-list" id="fileList"></div>
+
+        <div class="progress-container" id="progressContainer" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text" id="progressText">Yükleniyor...</p>
+        </div>
+
+        <button class="upload-btn" id="uploadBtn" disabled>Yükle</button>
+
+        <div class="message" id="message"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
