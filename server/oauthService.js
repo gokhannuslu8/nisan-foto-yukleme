@@ -6,7 +6,7 @@ const path = require('path');
 const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
 const FOLDER_NAME = 'Nişan Foto&Video';
 const TOKEN_PATH = path.join(__dirname, 'token.json');
-const CREDENTIALS_PATH = path.join(__dirname, 'credentials.json');
+const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
 
 let oauth2Client = null;
 let driveClient = null;
