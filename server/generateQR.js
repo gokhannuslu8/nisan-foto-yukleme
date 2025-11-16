@@ -2,17 +2,20 @@ const QRCode = require('qrcode');
 const fs = require('fs');
 const path = require('path');
 
-async function generateQRCode(url, outputPath = 'qr-code.png') {
+// Render URL'in BURAYA yaz
+const RENDER_URL = "https://nisan-foto-yukleme.onrender.com/auth";
+
+async function generateQRCode(url = RENDER_URL, outputPath = 'qr-code.png') {
   try {
     const qrCodePath = path.join(__dirname, '..', outputPath);
-    
+
     await QRCode.toFile(qrCodePath, url, {
       width: 500,
       margin: 2,
       color: {
         dark: '#000000',
-        light: '#FFFFFF'
-      }
+        light: '#FFFFFF',
+      },
     });
 
     console.log(`✅ QR kod oluşturuldu: ${qrCodePath}`);
@@ -26,9 +29,7 @@ async function generateQRCode(url, outputPath = 'qr-code.png') {
 
 // Eğer doğrudan çalıştırılırsa
 if (require.main === module) {
-  const url = process.argv[2] || 'http://localhost:3001';
-  generateQRCode(url, 'qr-code.png');
+  generateQRCode(RENDER_URL, 'qr-code.png');
 }
 
 module.exports = { generateQRCode };
-
