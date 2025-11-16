@@ -2,62 +2,57 @@ const { google } = require('googleapis');
 const fs = require('fs');
 const path = require('path');
 
-// Google Drive API yapılandırması
-const SCOPES = ['https://www.googleapis.com/auth/drive'];
-const FOLDER_NAME = 'Nişan Foto&Video';
+// Service Account dosyasının Render'daki yolu:
+const KEYFILE_PATH = '/etc/secrets/service-account-key.json';
 
-// Service Account JSON dosyası (Render için doğru yol)
-const KEYFILE_PATH =
-  process.env.NODE_ENV === 'production'
-    ? '/etc/secrets/service-account-key.json'
-    : path.join(__dirname, 'service-account-key.json');
+// Drive klasör adı
+const FOLDER_NAME = 'Nişan Foto&Video';
 
 let driveClient = null;
 
-// Google Drive istemcisini başlat
+// Google Drive client başlat
 function initializeDrive() {
   try {
+    // Dosya var mı?
     if (!fs.existsSync(KEYFILE_PATH)) {
       throw new Error(
-        '❌ service-account-key.json bulunamadı!\n' +
-        '📁 Dosya şu konumda olmalı: ' + KEYFILE_PATH
+        `❌ Service Account anahtarı bulunamadı: ${KEYFILE_PATH}\n` +
+        `📌 Render Secret Files kısmına service-account-key.json dosyasını eklediğinizden emin olun.`
       );
     }
 
+    // GoogleAuth oluştur
     const auth = new google.auth.GoogleAuth({
       keyFile: KEYFILE_PATH,
-      scopes: SCOPES
+      scopes: ['https://www.googleapis.com/auth/drive']
     });
 
-    driveClient = google.drive({
-      version: 'v3',
-      auth
-    });
+    driveClient = google.drive({ version: 'v3', auth });
+    console.log('✅ Google Drive bağlantısı başarılı');
 
-    console.log('✅ Google Drive (Service Account) bağlandı');
     return driveClient;
-
-  } catch (error) {
-    console.error('❌ Google Drive bağlantı hatası:', error.message);
-    throw error;
+  } catch (err) {
+    console.error('❌ Google Drive başlatma hatası:', err);
+    throw err;
   }
 }
 
-// Klasör ID'sini bul veya oluştur
+// Klasör ID’sini bul veya oluştur
 async function getOrCreateFolder() {
   if (!driveClient) initializeDrive();
 
   try {
+    // Var mı kontrol et
     const response = await driveClient.files.list({
-      q: `mimeType='application/vnd.google-apps.folder' and name='${FOLDER_NAME}' and trashed=false`,
+      q: `name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
       fields: 'files(id, name)'
     });
 
     if (response.data.files.length > 0) {
-      console.log(`📁 Klasör bulundu: ${response.data.files[0].id}`);
       return response.data.files[0].id;
     }
 
+    // Yoksa oluştur
     const folder = await driveClient.files.create({
       resource: {
         name: FOLDER_NAME,
@@ -66,12 +61,10 @@ async function getOrCreateFolder() {
       fields: 'id'
     });
 
-    console.log(`📁 Yeni klasör oluşturuldu: ${folder.data.id}`);
     return folder.data.id;
-
-  } catch (error) {
-    console.error('❌ Klasör hatası:', error);
-    throw error;
+  } catch (err) {
+    console.error('❌ Klasör oluşturma hatası:', err);
+    throw err;
   }
 }
 
@@ -82,32 +75,24 @@ async function uploadToDrive(filePath, fileName, mimeType) {
   try {
     const folderId = await getOrCreateFolder();
 
-    const fileMetadata = {
-      name: fileName,
-      parents: [folderId]
-    };
-
-    const media = {
-      mimeType,
-      body: fs.createReadStream(filePath)
-    };
-
-    const res = await driveClient.files.create({
-      resource: fileMetadata,
-      media,
+    const file = await driveClient.files.create({
+      resource: {
+        name: fileName,
+        parents: [folderId]
+      },
+      media: {
+        mimeType,
+        body: fs.createReadStream(filePath)
+      },
       fields: 'id, webViewLink'
     });
 
-    console.log(`✅ Yüklendi: ${fileName} (${res.data.id})`);
-    return res.data;
-
-  } catch (error) {
-    console.error('❌ Yükleme hatası:', error);
-    throw error;
+    console.log(`📤 Yüklendi: ${fileName}`);
+    return file.data;
+  } catch (err) {
+    console.error('❌ Upload hatası:', err);
+    throw err;
   }
 }
 
-module.exports = {
-  initializeDrive,
-  uploadToDrive
-};
+module.exports = { uploadToDrive };
