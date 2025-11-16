@@ -1,14 +1,24 @@
-# Gizli dosyalar
-server/credentials.json
-server/token.json
+# Node modules
+node_modules/
 
-# Geçici yüklemeler
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary uploads
 server/uploads/
 
-# Node modülleri
-node_modules/
-client/node_modules/
-server/node_modules/
+# Sensitive keys (EN ÖNEMLİLER)
+server/service-account-key.json
+server/credentials.json
+token.json
 
-# Environment
-.env
+# Build & cache
+dist/
+.cache/
